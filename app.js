@@ -5,16 +5,18 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const catalogRouter = require("./routes/catalog"); //Import routes for "catalog" area of site
+const mongoose = require("mongoose");
 require('dotenv').config();
 
 var app = express();
 
 // Set up mongoose connection
-const mongoose = require("mongoose");
+
 mongoose.set("strictQuery", false);
 const mongoDB = process.env.DATABASE_URI
 
@@ -22,6 +24,8 @@ main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);
 }
+
+
 
 
 // view engine setup
@@ -34,6 +38,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.use(session({
+  secret: 'yourSecretKey', // change this in production
+  resave: false,
+  saveUninitialized: false
+}));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
